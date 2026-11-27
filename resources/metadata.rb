@@ -1,0 +1,6 @@
+name             'seaweedfs'
+maintainer       'Eneo Tecnología S.L.'
+maintainer_email 'git@redborder.com'
+license          'AGPL-3.0'
+description      'Installs/Configures SeaweedFS (S3 object storage)'
+version          '1.0.0'
