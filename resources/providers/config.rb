@@ -250,8 +250,12 @@ action :add_malware do
 end
 
 action :add_s3_conf_nginx do
-  s3_hosts = new_resource.s3_hosts
+  # Empty when the chef search returns no S3 nodes (e.g. search index down): keep the current
+  # s3.conf instead of rendering an upstream without servers, which breaks nginx
+  s3_hosts = Array(new_resource.s3_hosts).compact.map(&:to_s).reject(&:empty?)
   cdomain = get_cdomain
+
+  Chef::Log.warn('seaweedfs: no S3 hosts found, /etc/nginx/conf.d/s3.conf is not updated') if s3_hosts.empty?
 
   service 'nginx' do
     service_name 'nginx'
@@ -269,6 +273,7 @@ action :add_s3_conf_nginx do
     cookbook 'nginx'
     variables(s3_hosts: s3_hosts, cdomain: cdomain)
     notifies :restart, 'service[nginx]', :delayed
+    not_if { s3_hosts.empty? }
   end
 end
 
